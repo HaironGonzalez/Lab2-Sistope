@@ -20,6 +20,8 @@
 
 using namespace std;
 
+void agregarceros (int numero,int largo,stringstream &ceros);
+
 
 
 #endif /* defined(__Laboratorio2__) */
