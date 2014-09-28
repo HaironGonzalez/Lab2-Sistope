@@ -1,19 +1,24 @@
+executable:=./src/main
+
+build:=./build
+src:=./src
+
+objects:=$(build)/archivo.o
+sources:=$(src)/archivo.cpp
+
 cxx:=g++
-salida:= laboratorio2
 
+includes:=-I./src/include 
 
-programa: main.o archivo.o
-	$(cxx) -I./src/include -o ./build/laboratorio2 *.o
+main: $(objects)
+	$(cxx) $(includes) $(objects) -o $(build)/laboratorio2 $(executable).cpp
 
-main.o: src/main.cpp src/include/bibliotecas.h
-	$(cxx) -I./src/include -c src/main.cpp
-
-archivo.o: src/archivo.cpp	src/include/bibliotecas.h
-	$(cxx) -I./src/include -c src/archivo.cpp
-
+$(build)/%.o: $(src)/%.cpp 
+	test -d $(build) || mkdir $(build)
+	$(cxx) $(includes) -c -o $(build)/$(*).o $(src)/$*.cpp
 
 clean:
-	rm *.o
-	rm ./build/laboratorio2
-	
+	rm $(build)/*;
+
+
 	
