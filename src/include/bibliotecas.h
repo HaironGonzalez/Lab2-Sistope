@@ -16,11 +16,12 @@
 #include <fcntl.h>
 #include <fstream>
 #include <time.h>
+#include <vector>
 
 
 using namespace std;
 
-void agregarceros (int numero,int largo,stringstream &ceros);
+void agregarceros (int numero,int largo,stringstream &ceros,bool check);
 
 
 
