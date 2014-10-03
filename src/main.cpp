@@ -345,6 +345,7 @@ int main (int argc, char **argv)
           write(Escribir[i],"Eliminen",9);
         }
         system ("rm ./Config");
+        cout << "Discos RAID y fichero Config Eliminados satisfactoriamente\n";
       }
     }
 
@@ -448,7 +449,6 @@ int main (int argc, char **argv)
         return 0;
       }   
     }
-
     if(rflag){
       int i = 0;
       if (pid == 1){
@@ -477,7 +477,7 @@ int main (int argc, char **argv)
         i=0;
         while(i<NumPartes){
 
-          for(int j =0;j<NumDiscos/2;j++){
+          for(int j = 0;j<NumDiscos/2;j++){
             char contenido [1024];
             if (i<NumPartes){
               
@@ -496,6 +496,7 @@ int main (int argc, char **argv)
               //cout << "soy papi  y envio:  "<< NomParticion.str().c_str()<<endl;
               read (Leer[j],res1, sizeof(res1));            //espera la respuesta de recibi de los procesos para volver a escribir
               read (Leer[j+NumDiscos/2],res2, sizeof(res2));
+              //cout << "res 1 = "<<res1<<" res 2 = "<<res2<<endl;
 
               if (strcmp(res1,"NO")==0 && strcmp(res2,"NO")==0){
                 cout << "Error: Archivo irreparable falta un bloque en Disco principal y en respaldo\n";
@@ -613,6 +614,7 @@ int main (int argc, char **argv)
       }
     }
 
+
     if(Rflag){
 
       int i = 0;
@@ -646,7 +648,7 @@ int main (int argc, char **argv)
         original = fopen (NomOriginal,"wb");
         while(i<NumPartes){
 
-          for(int j =0;j<NumDiscos/2;j++){
+          for(int j = 0;j<NumDiscos/2;j++){
             char contenido [1024];
             if (i<NumPartes){
               
@@ -658,24 +660,33 @@ int main (int argc, char **argv)
               char res1[3];
               char res2[3];
               char msj[20];
-              
-
               NomParticion << NomFichero_R <<"-"<<ceros.str().c_str()<<i; 
-              
-              
-              write(Escribir[j],NomParticion.str().c_str(),strlen(NomParticion.str().c_str())+1);
-              write(Escribir[j + NumDiscos/2],NomParticion.str().c_str(),strlen(NomParticion.str().c_str())+1);
-              read(Leer[j],res1,3);
-              read(Leer[j + NumDiscos/2],res2,3);
-              if (strcmp(res1,"SI")==0){
 
+              write(Escribir[j],NomParticion.str().c_str(),strlen(NomParticion.str().c_str())+1);
+              write(Escribir[j+NumDiscos/2],NomParticion.str().c_str(),strlen(NomParticion.str().c_str())+1);
+              //cout << "soy papi  y envio:  "<< NomParticion.str().c_str()<<endl;
+              read (Leer[j],res1, sizeof(res1));            //espera la respuesta de recibi de los procesos para volver a escribir
+              read (Leer[j+NumDiscos/2],res2, sizeof(res2));
+
+              //cout << "res 1 = "<<res1<<" res 2 = "<<res2<<endl;
+
+              if (strcmp(res1,"SI")==0){
+                char relleno[14];
                 write(Escribir[j],"Manda",6);
+                write(Escribir[j+NumDiscos/2],"NADA",5);
                 read(Leer[j],contenido,1024);
+                read(Leer[j+NumDiscos/2],relleno,14);
                 fwrite(contenido,1,1024,original);
-              }else{
+              }
+              else
+              {
                 if (strcmp(res2,"SI")==0){
+                  char relleno[14];
+
                   write(Escribir[j+NumDiscos/2],"Manda",6);
+                  write(Escribir[j],"NADA",5);
                   read(Leer[j+NumDiscos/2],contenido,1024);
+                  read(Leer[j],relleno,14);
                   fwrite(contenido,1,1024,original);
                 }
                 else{   // no se pyede crear el fichero
@@ -689,20 +700,15 @@ int main (int argc, char **argv)
                 }
               }
             }
-            else break; 
+            
             i++;
           }
         }
 
-
-
-        char Murio[6];
         fclose(original);
         cout << "Archivo restaurado exitosamente, en carpeta Archivos Originales"<<endl;
         exit(0);
-        
 
-        return 0;
       }
       else{   // hijos
 
@@ -738,7 +744,7 @@ int main (int argc, char **argv)
             if (strcmp(quehago,"Manda")==0){
               fread (contenido, 1,1024, f);
               write(EscribirH,contenido,1024);
-            }
+            }else write(EscribirH,"pueo rrelleno",14);
             
             //cout << "si lo tengo \n";
             fclose (f);
